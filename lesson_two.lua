@@ -1,62 +1,61 @@
+--- Ensure LocalPlayer is loaded
+local Players = game:GetService("Players")
+local player = Players.LocalPlayer or Players.PlayerAdded:Wait() -- Wait until player loads
 
---Set the amount of points we would need to obtain a weaon
-local Katana_Points = 10
-local Bow_Points = 20
-
--- Create a variable for each weapon and make it equal to the weapon that we stored in Replicated Storage
-local weapon_epic_katana = game.ReplicatedStorage.EpicKatana
-local weapon_ice_bow = game.ReplicatedStorage.IceBow
-
--- Now let's create a function that will only run when the player is added to the game
-
-
--- Handle player points and weapon granting
-local function handlePoints(player, player_points)
-	while player and player.Parent do
-		wait(1) -- Wait for 1 second
-		player_points.value = player_points.value + 1 -- Increase points over time
-
-		print(player.Name .. " has " ..  player_points.value .. " points.") -- Show points in the output
-
-		-- Check if the player has enough points for the Katana
-		if  player_points.value >= Katana_Points and weapon_epic_katana then
-			local backpack = player:FindFirstChild("Backpack")
-			if backpack and not backpack:FindFirstChild(weapon_epic_katana.Name) then
-				weapon_epic_katana:Clone().Parent = backpack
-			end
-		end
-
-		-- Check if the player has enough points for the Bow
-		if  player_points.value >= Bow_Points and weapon_ice_bow then
-			local backpack = player:FindFirstChild("Backpack")
-			if backpack and not backpack:FindFirstChild(weapon_ice_bow.Name) then
-				weapon_ice_bow:Clone().Parent = backpack
-			end
-		end
-	end
+-- Points variable
+local points = 0
+-- Function to reset points
+function resetPoints()
+    points = 0
+    print("Player died. Points reset to 0.")
 end
 
--- Reset points when the player dies
-local function resetPointsOnDeath(player, humanoid, player_points)
-	humanoid.Died:Connect(function()
-		print(player.Name .. " died. Resetting points.")
-		player_points.value = 0 -- Reset points
-		local backpack = player:FindFirstChild("Backpack")
-		if backpack then
-			backpack:ClearAllChildren() -- Clear all items from the backpack
-		end
-	end)
+-- Function to add weapons to the backpack
+function addWeapon(weaponName)
+    local weapon = game.ServerStorage:FindFirstChild(weaponName)
+
+    -- Ensure Backpack exists
+    local backpack = player:WaitForChild("Backpack")
+
+    -- Check if weapon already exists in the backpack
+    if backpack:FindFirstChild(weaponName) then
+        print(weaponName .. " is already in the backpack!")
+        return
+    end
+
+    -- Add weapon if found
+    if weapon then
+        weapon:Clone().Parent = backpack
+        print(weaponName .. " added to backpack!")
+    else
+        print("Weapon not found!")
+    end
 end
 
--- When a player joins the game
-game.Players.PlayerAdded:Connect(function(player)
-	-- Shared points reference to track points across respawns
-	local pointsRef = { value = 0 } -- Use a table to allow reset across functions
+-- Function to handle player setup and main game logic
+function setupPlayer()
+    local character = player.Character or player.CharacterAdded:Wait()
+    local humanoid = character:WaitForChild("Humanoid")
 
-	-- Run the points logic when the player's character is added
-	player.CharacterAdded:Connect(function(character)
-		local humanoid = character:WaitForChild("Humanoid")
-		resetPointsOnDeath(player, humanoid, pointsRef)
-		handlePoints(player, pointsRef) -- Start points system when the character spawns
-	end)
-end)
+    -- Attach death event
+    humanoid.Died:Connect(resetPoints)
+
+    -- Main game loop for updating points and unlocking weapons
+    spawn(function()
+        while true do
+            wait(1)
+            points += 1
+            print("Points: " .. points)
+
+            if points >= 10 then
+                addWeapon("Katana")
+            end
+            if points >= 20 then
+                addWeapon("Bow")
+            end
+        end
+    end)
+end
+
+player.CharacterAdded:Connect(setupPlayer)
+setupPlayer()
