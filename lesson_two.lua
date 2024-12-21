@@ -19,7 +19,6 @@ function addWeapon(weaponName)
 
     -- Check if weapon already exists in the backpack
     if backpack:FindFirstChild(weaponName) then
-        print(weaponName .. " is already in the backpack!")
         return
     end
 
