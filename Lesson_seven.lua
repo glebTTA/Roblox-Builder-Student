@@ -1,4 +1,4 @@
---- DashButton LocalScript
+-- DashButton LocalScript
 
 local player = game.Players.LocalPlayer
 local humanoid = player.Character:WaitForChild("Humanoid") -- Player's humanoid
@@ -48,3 +48,42 @@ end
 
 -- Connect the button click to the function
 button.MouseButton1Click:Connect(activateDash)
+
+
+-- Leadestats level Up script
+
+local Players = game:GetService("Players")
+
+Players.PlayerAdded:Connect(function(player)
+	local leaderstats = Instance.new("Folder")
+	leaderstats.Name = "leaderstats"
+	leaderstats.Parent = player
+
+	local points = Instance.new("IntValue")
+	points.Name = "Points"
+	points.Value = 10
+	points.Parent = leaderstats
+	
+	local level = Instance.new("IntValue")
+	level.Name = "Level"
+	level.Value = 0
+	level.Parent = leaderstats
+	
+	local level_up = Instance.new("IntValue")
+	level_up.Name = "Level Up"
+	level_up.Value = 50
+	level_up.Parent = leaderstats
+
+	
+
+	-- Continuously update points every second
+	while true do
+		wait(1) -- Pause for 1 second
+		points.Value = points.Value + 10
+		if points.Value >= level_up.Value then
+			level.Value = level.Value + 1
+			level_up.Value = level_up.Value + 50
+		end
+	end
+end)
+
