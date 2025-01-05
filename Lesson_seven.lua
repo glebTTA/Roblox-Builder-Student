@@ -50,6 +50,8 @@ end
 button.MouseButton1Click:Connect(activateDash)
 
 
+
+
 -- Leadestats level Up script
 
 local Players = game:GetService("Players")
@@ -86,4 +88,51 @@ Players.PlayerAdded:Connect(function(player)
 		end
 	end
 end)
+
+
+
+
+-- Coin System Script. Put this inside the Coin part
+script.Parent.Touched:Connect(function(hit)
+ local player = game.Players:GetPlayerFromCharacter(hit.Parent)
+ if player then
+  -- Get points stat from leaderstats
+  local stats = player:FindFirstChild("leaderstats")
+  local points = stats and stats:FindFirstChild("Points")
+
+  if points then
+   points.Value += 10 -- Add 10 points
+   print("Coin collected! Points: " .. points.Value)
+   script.Parent:Destroy() -- Remove the coin
+  end
+ end
+end)
+
+
+
+
+
+-- Disappearing Door Script. Put this inside The Door object
+local door = script.Parent -- The door object
+local requiredPoints = 30 -- Points required to unlock the door
+
+-- Check player’s points
+ game.Players.PlayerAdded:Connect(function(player)
+ local stats = player:WaitForChild("leaderstats") -- Find leaderstats
+ local points = stats:WaitForChild("Points") -- Find Points stat
+
+ -- Detect when points change
+ points.Changed:Connect(function(newPoints)
+  if newPoints >= requiredPoints then -- Check if points meet the requirement
+       door.Transparency = 1 -- Make the door transparent
+       door.CanCollide = false -- Allow players to walk through
+        print("Door unlocked!") -- Debug message
+        end
+   end)
+end)
+
+-- Put This Inside FireZombie enemy
+
+local humanoid = script.Parent:WaitForChild("Humanoid")
+humanoid.WalkSpeed = 25
 
