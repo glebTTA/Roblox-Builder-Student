@@ -11,7 +11,7 @@ _G.score = 0
 while true do
 	wait(1) -- wait 1 sesond before adding a point
 	_G.score = _G.score + 1 -- add 1 point to our score
-	print(score)
+	print(_G.score)
 end
 
 -- Reset script ---
